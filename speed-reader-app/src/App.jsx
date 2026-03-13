@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS = {
   theme: 'light',
   fontSize: 42,
   chunkSize: 1,
+  wpm: 300,
 };
 
 function App() {
@@ -106,13 +107,10 @@ function App() {
   }, [loadBook]);
 
   const handleBack = useCallback(() => {
-    if (bookData) {
-      saveProgress(bookData.title, 0);
-    }
     setBookData(null);
     setError(null);
     setHistoryKey(k => k + 1);
-  }, [bookData]);
+  }, []);
 
   if (bookData) {
     return (

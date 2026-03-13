@@ -10,6 +10,7 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsHidden, setControlsHidden] = useState(false);
   const [wasPlaying, setWasPlaying] = useState(false);
+  const [uiHidden, setUiHidden] = useState(false);
 
   const {
     currentWord,
@@ -22,7 +23,7 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
     skipForward,
     jumpTo,
     changeWpm,
-  } = useSpeedReader(bookData);
+  } = useSpeedReader(bookData, settings.wpm);
 
   // Display word(s) based on chunk size
   const displayWord = useMemo(() => {
@@ -35,6 +36,11 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
     }
     return words.join(' ');
   }, [bookData, currentWord, currentIndex, settings.chunkSize]);
+
+  const handleWpmChange = useCallback((newWpm) => {
+    changeWpm(newWpm);
+    onSettingsChange(s => ({ ...s, wpm: newWpm }));
+  }, [changeWpm, onSettingsChange]);
 
   // Fullscreen toggle
   const toggleFullscreen = useCallback(() => {
@@ -67,11 +73,11 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
           break;
         case 'ArrowUp':
           e.preventDefault();
-          changeWpm(Math.min(1000, wpm + 25));
+          handleWpmChange(Math.min(1000, wpm + 25));
           break;
         case 'ArrowDown':
           e.preventDefault();
-          changeWpm(Math.max(100, wpm - 25));
+          handleWpmChange(Math.max(100, wpm - 25));
           break;
         case 'KeyF':
           toggleFullscreen();
@@ -98,15 +104,24 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
     setWasPlaying(isPlaying);
   }, [isPlaying]);
 
-  // When switching away from text view, reset controls visibility
+  // When switching away from text view, reset controls + ui visibility
   useEffect(() => {
-    if (!showTextView) setControlsHidden(false);
+    if (!showTextView) {
+      setControlsHidden(false);
+      setUiHidden(false);
+    }
   }, [showTextView]);
+
+  const handleUiHide = useCallback(() => setUiHidden(true), []);
+  const handleUiShow = useCallback(() => setUiHidden(false), []);
 
   return (
     <div className="flex flex-col h-[100dvh] overflow-hidden">
-      {/* Header — fixed height, never scrolls */}
-      <header className="flex items-center justify-between px-3 py-2 border-b border-theme bg-card flex-shrink-0">
+      {/* Header — fixed overlay in text view, slides up when UI hidden */}
+      <header className={`flex items-center justify-between px-3 py-2 border-b border-theme bg-card transition-transform duration-300 ease-in-out ${showTextView
+        ? `fixed top-0 left-0 right-0 z-30 ${uiHidden ? '-translate-y-full' : 'translate-y-0'}`
+        : 'flex-shrink-0'
+        }`}>
         <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={onBack}
@@ -170,6 +185,10 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
           onWordClick={jumpTo}
           fontSize={settings.fontSize}
           disableAutoScroll={justPaused}
+          overlayMode
+          uiHidden={uiHidden}
+          onUiHide={handleUiHide}
+          onUiShow={handleUiShow}
         />
       ) : (
         <main
@@ -194,8 +213,11 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
         </main>
       )}
 
-      {/* Footer — sticky bottom, never scrolls */}
-      <footer className="flex-shrink-0 bg-card border-t border-theme">
+      {/* Footer — fixed overlay in text view, slides down when UI hidden */}
+      <footer className={`bg-card border-t border-theme transition-transform duration-300 ease-in-out ${showTextView
+        ? `fixed bottom-0 left-0 right-0 z-30 ${uiHidden ? 'translate-y-full' : 'translate-y-0'}`
+        : 'flex-shrink-0'
+        }`}>
         {showTextView && (
           <div className="flex justify-center pt-1">
             <button
@@ -223,7 +245,7 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
               onSkipBack={skipBack}
               onSkipForward={skipForward}
               wpm={wpm}
-              onWpmChange={changeWpm}
+              onWpmChange={handleWpmChange}
               progress={progress}
               currentIndex={currentIndex}
               totalWords={bookData.totalWords}

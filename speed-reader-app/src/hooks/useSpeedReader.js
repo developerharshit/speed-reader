@@ -1,14 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { saveProgress, updateHistoryProgress } from '../utils/storage';
 
-export function useSpeedReader(bookData) {
+export function useSpeedReader(bookData, initialWpm = 300) {
   const initialIndex = bookData?.resumeIndex || 0;
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [wpm, setWpm] = useState(300);
+  const [wpm, setWpm] = useState(initialWpm);
   const timerRef = useRef(null);
   const indexRef = useRef(initialIndex);
-  const wpmRef = useRef(300);
+  const wpmRef = useRef(initialWpm);
   const isPlayingRef = useRef(false);
 
   // Keep refs in sync
@@ -20,14 +20,19 @@ export function useSpeedReader(bookData) {
     wpmRef.current = wpm;
   }, [wpm]);
 
-  // Save progress periodically
+  // Save progress periodically and on unmount
   useEffect(() => {
     if (!bookData) return;
     const interval = setInterval(() => {
       saveProgress(bookData.title, indexRef.current);
       updateHistoryProgress(bookData.title, indexRef.current);
     }, 3000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      // Save immediately when leaving the reader
+      saveProgress(bookData.title, indexRef.current);
+      updateHistoryProgress(bookData.title, indexRef.current);
+    };
   }, [bookData]);
 
   const getDelay = useCallback((word) => {

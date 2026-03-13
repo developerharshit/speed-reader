@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
-export default function TextContextView({ words, paragraphs, currentIndex, onWordClick, fontSize, disableAutoScroll }) {
+export default function TextContextView({ words, paragraphs, currentIndex, onWordClick, fontSize, disableAutoScroll, overlayMode, uiHidden, onUiHide, onUiShow }) {
   const currentParaRef = useRef(null);
   const containerRef = useRef(null);
   const lastDisableAutoScrollRef = useRef(false);
@@ -48,13 +48,33 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
 
   const textSize = Math.max(14, Math.round(fontSize * 0.4));
 
+  // When overlayMode: header (~52px) and footer (~210px) float over content as fixed
+  // overlays, so we add matching padding so text is never obscured.
+  const overlayPaddingTop = overlayMode ? '60px' : '2rem';
+  const overlayPaddingBottom = overlayMode ? '214px' : '2rem';
+
+  // If uiHidden, intercept clicks at capture phase to restore UI instead of
+  // triggering word jumps.
+  const handleClickCapture = useCallback((e) => {
+    if (uiHidden) {
+      e.stopPropagation();
+      onUiShow?.();
+    }
+  }, [uiHidden, onUiShow]);
+
+  const handleScroll = useCallback(() => {
+    onUiHide?.();
+  }, [onUiHide]);
+
   // Fallback: no paragraph data — render words in a flat flowing view
   if (!paragraphs || paragraphs.length === 0) {
     return (
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-5 py-8 md:px-10"
-        style={{ fontSize: `${textSize}px`, lineHeight: '1.9' }}
+        className="flex-1 overflow-y-auto px-5 md:px-10"
+        style={{ fontSize: `${textSize}px`, lineHeight: '1.9', paddingTop: overlayPaddingTop, paddingBottom: overlayPaddingBottom }}
+        onScroll={handleScroll}
+        onClickCapture={handleClickCapture}
       >
         <div className="max-w-2xl mx-auto text-primary">
           {words.map((word, i) => (
@@ -62,8 +82,8 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
               <span
                 onClick={() => onWordClick(i)}
                 className={`cursor-pointer rounded transition-colors ${i === currentIndex
-                    ? 'bg-[var(--accent)] text-white font-bold px-1'
-                    : 'hover:bg-secondary'
+                  ? 'bg-[var(--accent)] text-white font-bold px-1'
+                  : 'hover:bg-secondary'
                   }`}
               >
                 {word}
@@ -78,8 +98,10 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
   return (
     <div
       ref={containerRef}
-      className="flex-1 overflow-y-auto px-5 py-8 md:px-12 lg:px-20"
-      style={{ fontSize: `${textSize}px`, lineHeight: '1.85' }}
+      className="flex-1 overflow-y-auto px-5 md:px-12 lg:px-20"
+      style={{ fontSize: `${textSize}px`, lineHeight: '1.85', paddingTop: overlayPaddingTop, paddingBottom: overlayPaddingBottom }}
+      onScroll={handleScroll}
+      onClickCapture={handleClickCapture}
     >
       <div className="max-w-2xl mx-auto">
         {paragraphs.map((para, pIdx) => {
@@ -106,8 +128,8 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
                         <span
                           onClick={() => onWordClick(globalIdx)}
                           className={`cursor-pointer rounded transition-colors ${isActiveWord
-                              ? 'bg-[var(--accent)] text-white font-bold px-1 py-0.5'
-                              : 'hover:bg-secondary'
+                            ? 'bg-[var(--accent)] text-white font-bold px-1 py-0.5'
+                            : 'hover:bg-secondary'
                             }`}
                         >
                           {word}
