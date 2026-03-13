@@ -1,10 +1,14 @@
 import { useState } from 'react';
 
+// Indent widths per nesting level (in px)
+const INDENT = [16, 28, 40, 52];
+
 export default function ChapterNav({ chapters, currentIndex, onJumpTo }) {
   const [isOpen, setIsOpen] = useState(false);
 
   if (!chapters || chapters.length === 0) return null;
 
+  // Find the most specific (deepest / last in list) active chapter
   const currentChapter = [...chapters]
     .reverse()
     .find(ch => currentIndex >= ch.startWordIndex);
@@ -31,24 +35,35 @@ export default function ChapterNav({ chapters, currentIndex, onJumpTo }) {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute left-0 top-full mt-1 z-50 w-64 max-h-80 overflow-y-auto rounded-xl bg-card border border-theme shadow-xl">
-            {chapters.map((ch, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  onJumpTo(ch.startWordIndex);
-                  setIsOpen(false);
-                }}
-                className={`
-                  w-full text-left px-4 py-3 text-sm transition-colors
-                  hover:bg-secondary border-b border-theme last:border-0
-                  ${currentChapter === ch ? 'bg-secondary font-medium' : ''}
-                `}
-              >
-                <span className="text-secondary text-xs mr-2">{i + 1}.</span>
-                {ch.title}
-              </button>
-            ))}
+          <div className="absolute left-0 top-full mt-1 z-50 w-72 max-h-96 overflow-y-auto rounded-xl bg-card border border-theme shadow-xl">
+            {chapters.map((ch, i) => {
+              const level = ch.level || 0;
+              const paddingLeft = INDENT[Math.min(level, INDENT.length - 1)];
+              const isCurrent = currentChapter === ch;
+              return (
+                <button
+                  key={i}
+                  onClick={() => {
+                    onJumpTo(ch.startWordIndex);
+                    setIsOpen(false);
+                  }}
+                  style={{ paddingLeft }}
+                  className={`
+                    w-full text-left pr-4 py-2.5 transition-colors
+                    border-b border-theme last:border-0
+                    hover:bg-secondary
+                    ${isCurrent ? 'bg-secondary' : ''}
+                    ${level === 0 ? 'text-sm font-medium' : 'text-xs text-secondary'}
+                    ${isCurrent ? 'text-primary font-semibold' : ''}
+                  `}
+                >
+                  {level > 0 && (
+                    <span className="mr-1.5 opacity-40">{'–'.repeat(level)}</span>
+                  )}
+                  {ch.title}
+                </button>
+              );
+            })}
           </div>
         </>
       )}

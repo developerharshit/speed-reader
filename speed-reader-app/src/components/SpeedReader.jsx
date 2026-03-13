@@ -9,6 +9,7 @@ import SettingsPanel from './SettingsPanel';
 export default function SpeedReader({ bookData, settings, onSettingsChange, onBack }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsHidden, setControlsHidden] = useState(false);
+  const [wasPlaying, setWasPlaying] = useState(false);
 
   const {
     currentWord,
@@ -90,6 +91,12 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
 
   // Show text view whenever paused (not playing), regardless of position
   const showTextView = !isPlaying;
+  const justPaused = wasPlaying && !isPlaying;
+
+  // Track playing state and detect pause
+  useEffect(() => {
+    setWasPlaying(isPlaying);
+  }, [isPlaying]);
 
   // When switching away from text view, reset controls visibility
   useEffect(() => {
@@ -162,6 +169,7 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
           currentIndex={currentIndex}
           onWordClick={jumpTo}
           fontSize={settings.fontSize}
+          disableAutoScroll={justPaused}
         />
       ) : (
         <main
