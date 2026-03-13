@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where npm:*)",
+      "Bash(npx vite:*)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 55128 //F)",
+      "Bash(ls D:/Repos/PlayingAround/speed-reader/speed-reader-app/node_modules/.bin/vite*)",
+      "Bash(cp \"C:/Users/harshit.gupta/Downloads/book.epub\" D:/Repos/PlayingAround/speed-reader/speed-reader-app/public/test-book.epub)",
+      "Bash(cp \"C:/Users/harshit.gupta/Downloads/book.pdf\" D:/Repos/PlayingAround/speed-reader/speed-reader-app/public/test-book.pdf)",
+      "Bash(dir D:ReposPlayingAroundspeed-reader)",
+      "Read(//mnt/d/Repos/PlayingAround/speed-reader/**)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

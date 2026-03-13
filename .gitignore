@@ -1,0 +1,17 @@
+# App build output & dependencies (also covered by speed-reader-app/.gitignore)
+speed-reader-app/node_modules
+speed-reader-app/dist
+speed-reader-app/dist-ssr
+speed-reader-app/*.local
+
+# Claude Code internals
+.claude/projects/
+.claude/worktrees/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
