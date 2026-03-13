@@ -2,12 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- PWA: icons -->
     <link rel="icon" type="image/svg+xml" href="/speed-reader/favicon.svg" />
+    <link rel="apple-touch-icon" href="/speed-reader/apple-touch-icon-180x180.png" />
+
+    <!-- PWA: appearance -->
+    <meta name="theme-color" content="#7c3aed" />
+    <meta name="description" content="RSVP Speed Reading – read PDF & EPUB books at lightning speed" />
+
+    <!-- iOS standalone mode (full-screen, no Safari chrome) -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SpeedRead" />
+
+    <!-- Android standalone mode -->
+    <meta name="mobile-web-app-capable" content="yes" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Speed Reader</title>
     <script type="module" crossorigin src="/speed-reader/assets/index-nmsF5DBJ.js"></script>
     <link rel="stylesheet" crossorigin href="/speed-reader/assets/index-Dv-ESZ_j.css">
-  </head>
+  <link rel="manifest" href="/speed-reader/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/speed-reader/registerSW.js"></script></head>
   <body>
     <div id="root"></div>
   </body>
