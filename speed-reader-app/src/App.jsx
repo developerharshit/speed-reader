@@ -33,6 +33,27 @@ function App() {
     saveSettings(settings);
   }, [settings]);
 
+  // Sync browser history stack with reader open/close state
+  useEffect(() => {
+    if (bookData) {
+      // Push a new entry so the back button can return to the home screen
+      window.history.pushState({ reader: true }, '');
+    }
+  }, [bookData]);
+
+  // Handle browser back button: close the reader instead of leaving the page
+  useEffect(() => {
+    const handlePopState = () => {
+      if (bookData) {
+        setBookData(null);
+        setError(null);
+        setHistoryKey(k => k + 1);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [bookData]);
+
   const loadBook = useCallback(async (file, type, skipCache = false) => {
     setIsLoading(true);
     setError(null);
@@ -107,9 +128,9 @@ function App() {
   }, [loadBook]);
 
   const handleBack = useCallback(() => {
-    setBookData(null);
-    setError(null);
-    setHistoryKey(k => k + 1);
+    // Pop the history entry we pushed when the book was opened, so the
+    // back stack stays accurate after using the in-app back button.
+    window.history.back();
   }, []);
 
   if (bookData) {

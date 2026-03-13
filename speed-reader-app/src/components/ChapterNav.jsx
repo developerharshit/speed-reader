@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Indent widths per nesting level (in px)
 const INDENT = [16, 28, 40, 52];
 
 export default function ChapterNav({ chapters, currentIndex, onJumpTo }) {
   const [isOpen, setIsOpen] = useState(false);
+  const activeRef = useRef(null);
+  const listRef = useRef(null);
+  const containerRef = useRef(null);
 
   if (!chapters || chapters.length === 0) return null;
 
@@ -13,8 +16,33 @@ export default function ChapterNav({ chapters, currentIndex, onJumpTo }) {
     .reverse()
     .find(ch => currentIndex >= ch.startWordIndex);
 
+  // Close on outside click using a document-level listener so stacking
+  // context of the fixed header doesn't swallow the event.
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [isOpen]);
+
+  // Scroll active item into view when dropdown opens
+  useEffect(() => {
+    if (isOpen && activeRef.current && listRef.current) {
+      const list = listRef.current;
+      const item = activeRef.current;
+      const itemTop = item.offsetTop;
+      const itemHeight = item.offsetHeight;
+      const listHeight = list.clientHeight;
+      list.scrollTop = itemTop - listHeight / 2 + itemHeight / 2;
+    }
+  }, [isOpen]);
+
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary hover:bg-[var(--border-color)] transition-colors text-sm"
@@ -30,12 +58,7 @@ export default function ChapterNav({ chapters, currentIndex, onJumpTo }) {
       </button>
 
       {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute left-0 top-full mt-1 z-50 w-72 max-h-96 overflow-y-auto rounded-xl bg-card border border-theme shadow-xl">
+          <div ref={listRef} className="absolute left-0 top-full mt-1 z-50 w-72 max-h-96 overflow-y-auto rounded-xl bg-card border border-theme shadow-xl">
             {chapters.map((ch, i) => {
               const level = ch.level || 0;
               const paddingLeft = INDENT[Math.min(level, INDENT.length - 1)];
@@ -43,6 +66,7 @@ export default function ChapterNav({ chapters, currentIndex, onJumpTo }) {
               return (
                 <button
                   key={i}
+                  ref={isCurrent ? activeRef : null}
                   onClick={() => {
                     onJumpTo(ch.startWordIndex);
                     setIsOpen(false);
@@ -52,7 +76,7 @@ export default function ChapterNav({ chapters, currentIndex, onJumpTo }) {
                     w-full text-left pr-4 py-2.5 transition-colors
                     border-b border-theme last:border-0
                     hover:bg-secondary
-                    ${isCurrent ? 'bg-secondary' : ''}
+                    ${isCurrent ? 'bg-secondary border-l-[3px] border-l-[var(--accent)]' : 'border-l-[3px] border-l-transparent'}
                     ${level === 0 ? 'text-sm font-medium' : 'text-xs text-secondary'}
                     ${isCurrent ? 'text-primary font-semibold' : ''}
                   `}
@@ -65,7 +89,6 @@ export default function ChapterNav({ chapters, currentIndex, onJumpTo }) {
               );
             })}
           </div>
-        </>
       )}
     </div>
   );

@@ -10,7 +10,8 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsHidden, setControlsHidden] = useState(false);
   const [wasPlaying, setWasPlaying] = useState(false);
-  const [uiHidden, setUiHidden] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
+  const [footerHidden, setFooterHidden] = useState(false);
 
   const {
     currentWord,
@@ -104,22 +105,25 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
     setWasPlaying(isPlaying);
   }, [isPlaying]);
 
-  // When switching away from text view, reset controls + ui visibility
+  // When switching away from text view, reset ui visibility
   useEffect(() => {
     if (!showTextView) {
-      setControlsHidden(false);
-      setUiHidden(false);
+      setHeaderHidden(false);
+      setFooterHidden(false);
     }
   }, [showTextView]);
 
-  const handleUiHide = useCallback(() => setUiHidden(true), []);
-  const handleUiShow = useCallback(() => setUiHidden(false), []);
+  // Scroll up → hide both; scroll down → show only header, footer stays hidden
+  const handleUiHide = useCallback(() => { setHeaderHidden(true); setFooterHidden(true); }, []);
+  const handleUiShow = useCallback(() => { setHeaderHidden(false); setFooterHidden(true); }, []);
+  // Tap when hidden → restore everything
+  const handleUiTapRestore = useCallback(() => { setHeaderHidden(false); setFooterHidden(false); }, []);
 
   return (
     <div className="flex flex-col h-[100dvh] overflow-hidden">
       {/* Header — fixed overlay in text view, slides up when UI hidden */}
       <header className={`flex items-center justify-between px-3 py-2 border-b border-theme bg-card transition-transform duration-300 ease-in-out ${showTextView
-        ? `fixed top-0 left-0 right-0 z-30 ${uiHidden ? '-translate-y-full' : 'translate-y-0'}`
+        ? `fixed top-0 left-0 right-0 z-30 ${headerHidden ? '-translate-y-full' : 'translate-y-0'}`
         : 'flex-shrink-0'
         }`}>
         <div className="flex items-center gap-2 min-w-0">
@@ -140,7 +144,7 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
         </div>
 
         <div className="flex items-center gap-2 min-w-0 mx-2">
-          <h2 className="text-sm font-medium text-primary truncate hidden sm:block max-w-[180px]">
+          <h2 className="text-sm font-medium text-primary truncate max-w-[140px] sm:max-w-[220px]">
             {bookData.title}
           </h2>
           {showTextView && (
@@ -186,9 +190,12 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
           fontSize={settings.fontSize}
           disableAutoScroll={justPaused}
           overlayMode
-          uiHidden={uiHidden}
+          uiHidden={headerHidden || footerHidden}
           onUiHide={handleUiHide}
           onUiShow={handleUiShow}
+          onUiTapRestore={handleUiTapRestore}
+          bookTitle={bookData.title}
+          chapters={bookData.chapters}
         />
       ) : (
         <main
@@ -215,30 +222,10 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
 
       {/* Footer — fixed overlay in text view, slides down when UI hidden */}
       <footer className={`bg-card border-t border-theme transition-transform duration-300 ease-in-out ${showTextView
-        ? `fixed bottom-0 left-0 right-0 z-30 ${uiHidden ? 'translate-y-full' : 'translate-y-0'}`
+        ? `fixed bottom-0 left-0 right-0 z-30 ${footerHidden ? 'translate-y-full' : 'translate-y-0'}`
         : 'flex-shrink-0'
         }`}>
-        {showTextView && (
-          <div className="flex justify-center pt-1">
-            <button
-              onClick={() => setControlsHidden(h => !h)}
-              className="flex items-center gap-1 text-xs text-secondary hover:text-primary px-3 py-1 rounded-full hover:bg-secondary transition-colors"
-              title={controlsHidden ? 'Show player' : 'Hide player'}
-            >
-              <svg
-                width="12" height="12" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" strokeWidth="2"
-                strokeLinecap="round" strokeLinejoin="round"
-                style={{ transform: controlsHidden ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
-              >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-              {controlsHidden ? 'Show player' : 'Hide player'}
-            </button>
-          </div>
-        )}
-        {!controlsHidden && (
-          <div className="pb-5 pt-3">
+        <div className="pb-5 pt-3">
             <Controls
               isPlaying={isPlaying}
               onTogglePlay={togglePlay}
@@ -263,7 +250,6 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
               </div>
             )}
           </div>
-        )}
       </footer>
     </div>
   );

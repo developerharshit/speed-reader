@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-export default function TextContextView({ words, paragraphs, currentIndex, onWordClick, fontSize, disableAutoScroll, overlayMode, uiHidden, onUiHide, onUiShow }) {
+export default function TextContextView({ words, paragraphs, currentIndex, onWordClick, fontSize, disableAutoScroll, overlayMode, uiHidden, onUiHide, onUiShow, onUiTapRestore, bookTitle, chapters }) {
   const currentParaRef = useRef(null);
   const containerRef = useRef(null);
   const lastDisableAutoScrollRef = useRef(false);
+  const lastScrollTopRef = useRef(0);
 
   // Find which paragraph contains the current word
   const currentParaIndex = paragraphs
@@ -48,6 +49,22 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
 
   const textSize = Math.max(14, Math.round(fontSize * 0.4));
 
+  // Current chapter title derived from chapters list
+  const currentChapterTitle = chapters && chapters.length > 0
+    ? ([...chapters].reverse().find(ch => currentIndex >= ch.startWordIndex))?.title || null
+    : null;
+
+  // Title banner shown at the top of the scroll area
+  const titleBanner = bookTitle ? (
+    <div className="mb-8 pb-6 border-b border-theme">
+      <p className="text-xs uppercase tracking-widest text-secondary mb-1 font-medium">Now Reading</p>
+      <h1 className="text-lg font-bold text-primary leading-snug">{bookTitle}</h1>
+      {currentChapterTitle && (
+        <p className="text-sm text-secondary mt-1 truncate">{currentChapterTitle}</p>
+      )}
+    </div>
+  ) : null;
+
   // When overlayMode: header (~52px) and footer (~210px) float over content as fixed
   // overlays, so we add matching padding so text is never obscured.
   const overlayPaddingTop = overlayMode ? '60px' : '2rem';
@@ -58,13 +75,21 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
   const handleClickCapture = useCallback((e) => {
     if (uiHidden) {
       e.stopPropagation();
+      onUiTapRestore?.();
+    }
+  }, [uiHidden, onUiTapRestore]);
+
+  const handleScroll = useCallback((e) => {
+    const currentScrollTop = e.currentTarget.scrollTop;
+    const delta = currentScrollTop - lastScrollTopRef.current;
+    lastScrollTopRef.current = currentScrollTop;
+    // Scrolling up (delta < 0) hides header+footer; scrolling down shows header, footer stays hidden
+    if (delta < 0) {
+      onUiHide?.();
+    } else if (delta > 0) {
       onUiShow?.();
     }
-  }, [uiHidden, onUiShow]);
-
-  const handleScroll = useCallback(() => {
-    onUiHide?.();
-  }, [onUiHide]);
+  }, [onUiHide, onUiShow]);
 
   // Fallback: no paragraph data — render words in a flat flowing view
   if (!paragraphs || paragraphs.length === 0) {
@@ -77,6 +102,7 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
         onClickCapture={handleClickCapture}
       >
         <div className="max-w-2xl mx-auto text-primary">
+          {titleBanner}
           {words.map((word, i) => (
             <span key={i}>
               <span
@@ -104,6 +130,7 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
       onClickCapture={handleClickCapture}
     >
       <div className="max-w-2xl mx-auto">
+        {titleBanner}
         {paragraphs.map((para, pIdx) => {
           const isCurrent = pIdx === currentParaIndex;
           const isHeading = para.isHeading;
@@ -112,8 +139,7 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
             <div
               key={pIdx}
               ref={isCurrent ? currentParaRef : null}
-              className={`transition-colors duration-150 ${isHeading ? 'mt-8 mb-3' : 'mb-[1.1em]'
-                }`}
+              className={`transition-colors duration-150 ${isHeading ? 'mt-8 mb-3' : 'mb-[1.1em]'}`}
             >
               {isCurrent ? (
                 // Current paragraph: render word by word for precise highlighting
