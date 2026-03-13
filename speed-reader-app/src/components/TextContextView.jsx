@@ -4,7 +4,8 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
   const currentParaRef = useRef(null);
   const containerRef = useRef(null);
   const justJumpedRef = useRef(false);
-  const lastJumpIndexRef = useRef(-1);
+  const lastJumpIndexRef = useRef(null);
+  const initialMountRef = useRef(true);
 
   // Find which paragraph contains the current word
   const currentParaIndex = paragraphs
@@ -20,14 +21,12 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
       })()
     : -1;
 
-  // Only scroll when component mounts or after user jumps to a paragraph
+  // Only scroll when user jumps to a paragraph (clicks it), not during normal reading
   useEffect(() => {
     if (!currentParaRef.current || !containerRef.current) return;
 
-    // Check if this is a user-initiated jump (large index change)
-    const isJump = Math.abs(currentIndex - lastJumpIndexRef.current) > 50;
-
-    if (isJump || justJumpedRef.current) {
+    // Only scroll if user explicitly jumped (clicked a paragraph)
+    if (justJumpedRef.current) {
       const container = containerRef.current;
       const el = currentParaRef.current;
       const elTop = el.offsetTop;
@@ -40,10 +39,13 @@ export default function TextContextView({ words, paragraphs, currentIndex, onWor
       });
       justJumpedRef.current = false;
     }
-    lastJumpIndexRef.current = currentIndex;
-  }, [currentParaIndex, currentIndex]);
 
-  // Mark when user clicks a word (potential jump)
+    // Mark mount complete so we don't scroll on first render
+    initialMountRef.current = false;
+    lastJumpIndexRef.current = currentIndex;
+  }, [currentParaIndex]);
+
+  // Mark when user clicks a word (explicit jump action)
   const wrappedOnWordClick = (idx) => {
     justJumpedRef.current = true;
     onWordClick(idx);

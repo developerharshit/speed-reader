@@ -21,7 +21,8 @@
       "Bash(curl -s http://localhost:8889/sw.js)",
       "Bash(ls -lh \"/d/Repos/PlayingAround/speed-reader/speed-reader-app/dist/pwa-\"*)",
       "Bash(ls -lh /d/Repos/PlayingAround/speed-reader/speed-reader-app/public/*.png)",
-      "Bash(npm list:*)"
+      "Bash(npm list:*)",
+      "Bash(ls -la \"/d/Repos/PlayingAround/speed-reader/speed-reader-app/public/\"manifest*)"
     ]
   }
 }
