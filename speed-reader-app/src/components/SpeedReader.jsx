@@ -88,7 +88,8 @@ export default function SpeedReader({ bookData, settings, onSettingsChange, onBa
     return Math.ceil(remaining / wpm);
   }, [bookData, currentIndex, wpm]);
 
-  const showTextView = !isPlaying && currentIndex > 0;
+  // Show text view whenever paused (not playing), regardless of position
+  const showTextView = !isPlaying;
 
   // When switching away from text view, reset controls visibility
   useEffect(() => {

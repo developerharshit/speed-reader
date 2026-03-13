@@ -20,7 +20,7 @@ export default defineConfig({
         theme_color: '#7c3aed',
         background_color: '#faf7f0',
         display: 'standalone',
-        orientation: 'any',
+        orientation: 'portrait-primary',
         // Relative start_url/scope works for both / (local) and /speed-reader/ (GitHub Pages)
         scope: './',
         start_url: './',

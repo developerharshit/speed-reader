@@ -16,7 +16,12 @@
       "Read(//mnt/d/Repos/PlayingAround/speed-reader/**)",
       "Bash(npm run:*)",
       "WebFetch(domain:developerharshit.github.io)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(curl -s http://localhost:8889/manifest.webmanifest)",
+      "Bash(curl -s http://localhost:8889/sw.js)",
+      "Bash(ls -lh \"/d/Repos/PlayingAround/speed-reader/speed-reader-app/dist/pwa-\"*)",
+      "Bash(ls -lh /d/Repos/PlayingAround/speed-reader/speed-reader-app/public/*.png)",
+      "Bash(npm list:*)"
     ]
   }
 }
