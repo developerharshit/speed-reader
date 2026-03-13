@@ -95,3 +95,14 @@ input[type="range"]::-moz-range-thumb {
   .bg-accent { background-color: var(--accent); }
   .bg-accent-hover:hover { background-color: var(--accent-hover); }
 }
+
+@keyframes slideFromLeft {
+  from { transform: translateX(-50px); opacity: 0.2; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes slideFromRight {
+  from { transform: translateX(50px);  opacity: 0.2; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+.animate-slide-from-left  { animation: slideFromLeft  0.22s ease-out; }
+.animate-slide-from-right { animation: slideFromRight 0.22s ease-out; }

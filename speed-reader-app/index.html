@@ -3,14 +3,28 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- PWA: manifest -->
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- PWA manifest is injected automatically by VitePWA with the correct base path -->
 
-    <!-- PWA: icons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+    <!-- ── Favicons ──────────────────────────────────────────────────── -->
+    <!-- SVG favicon (Chrome, Firefox, Safari 14+) -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- ICO fallback (IE, legacy browsers) -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
 
-    <!-- PWA: appearance -->
+    <!-- ── Apple Touch Icons (iOS / iPadOS home-screen) ─────────────── -->
+    <!-- Sizes ordered from largest to smallest so browsers pick the best fit -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon-167x167.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="76x76"   href="/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="72x72"   href="/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="60x60"   href="/apple-touch-icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="57x57"   href="/apple-touch-icon-57x57.png" />
+
+    <!-- ── PWA / Android appearance ─────────────────────────────────── -->
     <meta name="theme-color" content="#7c3aed" />
     <meta name="description" content="RSVP Speed Reading – read PDF & EPUB books at lightning speed" />
 
@@ -21,6 +35,11 @@
 
     <!-- Android standalone mode -->
     <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- ── Windows / Microsoft Edge tile ────────────────────────────── -->
+    <meta name="msapplication-TileColor" content="#7c3aed" />
+    <meta name="msapplication-TileImage" content="/pwa-144x144.png" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Speed Reader</title>

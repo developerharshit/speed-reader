@@ -10,8 +10,10 @@ export default defineConfig({
       manifestFilename: 'manifest.webmanifest',  // explicit filename for manifest
       includeAssets: [
         'favicon.svg',
+        'favicon.ico',
         'logo.svg',
-        'apple-touch-icon-180x180.png',
+        'browserconfig.xml',
+        'apple-touch-icon-*.png',
       ],
       manifest: {
         name: 'Speed Reader',
@@ -25,20 +27,33 @@ export default defineConfig({
         scope: './',
         start_url: './',
         icons: [
+          { src: 'pwa-48x48.png',            sizes: '48x48',   type: 'image/png' },
           { src: 'pwa-64x64.png',            sizes: '64x64',   type: 'image/png' },
-          { src: 'pwa-192x192.png',           sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png',           sizes: '512x512', type: 'image/png' },
+          { src: 'pwa-72x72.png',            sizes: '72x72',   type: 'image/png' },
+          { src: 'pwa-96x96.png',            sizes: '96x96',   type: 'image/png' },
+          { src: 'pwa-128x128.png',          sizes: '128x128', type: 'image/png' },
+          { src: 'pwa-144x144.png',          sizes: '144x144', type: 'image/png' },
+          { src: 'pwa-152x152.png',          sizes: '152x152', type: 'image/png' },
+          { src: 'pwa-192x192.png',          sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-384x384.png',          sizes: '384x384', type: 'image/png' },
+          { src: 'pwa-512x512.png',          sizes: '512x512', type: 'image/png' },
           { src: 'maskable-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
         // Cache all app shell assets including the PDF.js worker (.mjs)
-        globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg}'],
+        globPatterns: ['**/*.{js,mjs,css,html,ico,png,svg,xml}'],
         // Exclude large test files from the precache
         globIgnores: ['**/test-book.*'],
         // SPA fallback so the app works offline even if the user navigated away
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/api\//],
+      },
+      // Enable service worker in dev mode so the app is installable locally
+      devOptions: {
+        enabled: true,
+        suppressWarnings: true,
+        navigateFallback: 'index.html',
       },
     }),
   ],
