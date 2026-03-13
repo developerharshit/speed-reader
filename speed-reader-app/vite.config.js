@@ -7,6 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',   // silently update SW when a new build is deployed
+      manifestFilename: 'manifest.webmanifest',  // explicit filename for manifest
       includeAssets: [
         'favicon.svg',
         'logo.svg',
