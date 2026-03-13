@@ -14,7 +14,9 @@
       "Bash(cp \"C:/Users/harshit.gupta/Downloads/book.pdf\" D:/Repos/PlayingAround/speed-reader/speed-reader-app/public/test-book.pdf)",
       "Bash(dir D:ReposPlayingAroundspeed-reader)",
       "Read(//mnt/d/Repos/PlayingAround/speed-reader/**)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "WebFetch(domain:developerharshit.github.io)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
